@@ -1,0 +1,14 @@
+people = struct('name', {'Ann', 'Bob'}, 'age', {31, 25});
+ages = [people.age];
+names = {people.name};
+c = cell(1, 3);
+c{1} = 'x';
+c(2) = {5};
+n = numel(c);
+isC = iscell(c);
+f = fieldnames(people);
+hasAge = isfield(people, 'age');
+m = containers.Map();
+m('a') = 1;
+k = keys(m);
+p = rmfield(people, 'age');

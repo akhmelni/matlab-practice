@@ -1,0 +1,16 @@
+c = {[10 20 30], {5, 6}};
+a = c{1}(2);
+b = c{2}{1};
+s(1).name = 'Ann';
+s(2).name = 'Bob';
+n = s(2).name;
+first = s(2).name(1);
+m = magic(4);
+row = m(2, :);
+el = m(end, end);
+last = c{end}{end};
+st.data = [1 2 3];
+st.data(2) = 7;
+val = st.data(end);
+fld = 'data';
+dyn = st.(fld)(1);

@@ -1,0 +1,3 @@
+- Write a script in `solution.m`.
+- Store the smallest number of terms in a variable named `n`, and the sum at that point in a variable named `total`.
+- The app only tells you whether your values are correct, not what they should be.

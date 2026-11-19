@@ -1,0 +1,13 @@
+{
+  "id": "ex-03-sin-cos-plot",
+  "set": "examples",
+  "number": 3,
+  "title": "Plot sine and cosine",
+  "kind": "plot",
+  "file": "solution.m",
+  "answers": [],
+  "banned_functions": [],
+  "banned_operators": [],
+  "context": [],
+  "timeout_s": 30
+}

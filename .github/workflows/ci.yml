@@ -1,0 +1,83 @@
+name: CI
+
+# Windows runs on every push to main (it's what the student uses).
+# macOS runs on demand only: macOS minutes count 10x against a private repo's free allowance.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      macos:
+        description: "Also run on macOS"
+        type: boolean
+        default: false
+
+env:
+  OCTAVE_VERSION: "11.3.0"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Cache the Octave installer
+        id: cache-octave
+        uses: actions/cache@v4
+        with:
+          path: octave-installer.exe
+          key: octave-installer-${{ env.OCTAVE_VERSION }}
+
+      - name: Download Octave
+        if: steps.cache-octave.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest "https://ftpmirror.gnu.org/octave/windows/octave-$env:OCTAVE_VERSION-w64-installer.exe" -OutFile octave-installer.exe
+
+      - name: Install Octave (silent, like winget does)
+        shell: pwsh
+        run: |
+          Start-Process -FilePath .\octave-installer.exe -ArgumentList '/S','/AllUsers' -Wait
+          Get-ChildItem "$env:ProgramFiles\GNU Octave" -Recurse -Filter "octave*.exe" -Depth 4 | Select-Object FullName
+
+      - name: Install the app
+        run: uv sync
+
+      - name: Unit and integration tests
+        run: uv run pytest -v
+
+      - name: check-setup (as the install guide runs it)
+        run: uv run check-setup --no-claude
+
+      - name: Validate every problem
+        run: uv run validate --all
+
+      - name: Server smoke test
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath uv -ArgumentList 'run','practice','--no-open' -PassThru -NoNewWindow
+          Start-Sleep -Seconds 8
+          $s = Invoke-RestMethod http://127.0.0.1:8770/api/status
+          $s | ConvertTo-Json -Depth 4
+          if (-not $s.octave.found) { throw "Octave not found by the server" }
+          $page = Invoke-WebRequest http://127.0.0.1:8770/ -UseBasicParsing
+          if ($page.StatusCode -ne 200) { throw "index.html not served" }
+          Stop-Process -Id $p.Id -Force
+
+  macos:
+    if: github.event_name == 'workflow_dispatch' && inputs.macos
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Octave
+        run: brew install octave
+      - run: uv sync
+      - run: uv run pytest -v
+      - run: uv run check-setup --no-claude
+      - run: uv run validate --all

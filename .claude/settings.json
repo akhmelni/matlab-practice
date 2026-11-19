@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run validate:*)",
+      "Bash(uv run mcheck:*)",
+      "Bash(uv run check-setup:*)",
+      "Bash(uv sync)",
+      "Bash(octave-cli:*)",
+      "Bash(octave-cli.exe:*)",
+      "Edit(my-work/problems/**)",
+      "Write(my-work/problems/**)"
+    ],
+    "deny": [
+      "Edit(my-work/solutions/**)",
+      "Write(my-work/solutions/**)"
+    ]
+  }
+}

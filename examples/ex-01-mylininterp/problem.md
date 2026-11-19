@@ -1,0 +1,1 @@
+Write a function with header `[Y] = myLinInterp(x,y,X)`, where $x$ and $y$ are column vectors containing experimental data points, and $X$ is an array. Assume that $x$ and $X$ are in ascending order and have unique elements. The output argument, $Y$, should be a vector, the same size as $X$, where $Y(i)$ is the linear interpolation of $X(i)$. You may not use `interp1`.

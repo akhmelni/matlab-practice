@@ -1,0 +1,10 @@
+f = @(x) x.^2 + 1;
+g = @(x, y) sqrt(x.^2 + y.^2);
+h = @sin;
+k = @(t) (t + 1);
+y = f(3) + g(3, 4) + h(pi/2) + k(1);
+vals = arrayfun(@(n) n^2, 1:4);
+c = cellfun(@(s) length(s), {'ab', 'cde'});
+d = cellfun(@isempty, {[], 1});
+fz = fzero(@(x) cos(x) - x, 0.5);
+q = integral(@(x) exp(-x.^2), 0, 1);

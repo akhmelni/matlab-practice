@@ -1,0 +1,3 @@
+- Write a script in `solution.m`.
+- Store your x values in a variable named `x`.
+- Your plot is shown after you press Run or Submit. Check it yourself: the app only checks that there are at least 100 points and at least 2 curves.

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MATLAB Practice</title>
+  <link rel="stylesheet" href="vendor/codemirror/codemirror.min.css">
+  <link rel="stylesheet" href="vendor/codemirror/addon/lint/lint.min.css">
+  <link rel="stylesheet" href="vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="banner" hidden></div>
+
+  <div id="app">
+    <aside id="sidebar">
+      <div class="brand">MATLAB Practice</div>
+      <div id="problem-list"></div>
+      <label class="toggle side-toggle" title="Turn syntax highlighting on or off">
+        <input type="checkbox" id="hl-toggle" checked>
+        <span>Syntax highlighting</span>
+      </label>
+      <footer id="status-footer"></footer>
+    </aside>
+
+    <main id="workspace">
+      <section id="left" class="pane">
+        <nav class="tabs" data-group="left">
+          <button data-tab="description" class="active">Description</button>
+          <button data-tab="submissions">Submissions <span id="sub-count" class="count"></span></button>
+        </nav>
+        <div class="tab-body active" data-panel="description">
+          <div id="desc">
+            <div class="desc-head">
+              <h1 id="p-title"></h1>
+              <button id="source-toggle" class="btn small" hidden>Show original</button>
+            </div>
+            <figure id="source-box" hidden>
+              <a id="source-link" target="_blank" rel="noopener"><img id="source-img" alt="Original homework question"></a>
+              <figcaption>Original from the homework (click to open full size)</figcaption>
+            </figure>
+            <div id="context"></div>
+            <article id="statement" class="markdown"></article>
+            <section id="submit-box">
+              <h2>How to submit</h2>
+              <div id="submit-md" class="markdown"></div>
+            </section>
+            <p id="hint-status" class="muted"></p>
+          </div>
+        </div>
+        <div class="tab-body" data-panel="submissions">
+          <div id="sub-list"></div>
+          <div id="sub-view" hidden>
+            <div class="sub-view-bar">
+              <button id="sub-back" class="link">← All submissions</button>
+              <span id="sub-view-meta"></span>
+              <button id="sub-load" class="btn">Load into editor</button>
+            </div>
+            <div id="sub-code"></div>
+            <div id="sub-result" class="result"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="right" class="pane">
+        <div class="editor-bar">
+          <nav id="file-tabs" class="file-tabs"></nav>
+          <span id="issue-count"></span>
+          <span id="save-state"></span>
+          <span class="spacer"></span>
+          <button id="run-btn" class="btn">Run</button>
+          <button id="submit-btn" class="btn primary">Submit</button>
+        </div>
+        <div id="editors"></div>
+        <div id="console">
+          <nav class="tabs" data-group="console">
+            <button data-tab="result" class="active">Result</button>
+            <button data-tab="output">Output</button>
+          </nav>
+          <div class="tab-body active result" data-panel="result" id="result"></div>
+          <div class="tab-body" data-panel="output" id="output"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="vendor/codemirror/codemirror.min.js"></script>
+  <script src="vendor/codemirror/mode/octave/octave.min.js"></script>
+  <script src="vendor/codemirror/addon/edit/matchbrackets.min.js"></script>
+  <script src="vendor/codemirror/addon/lint/lint.min.js"></script>
+  <script src="vendor/marked/marked.min.js"></script>
+  <script src="vendor/katex/katex.min.js"></script>
+  <script src="vendor/katex/contrib/auto-render.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

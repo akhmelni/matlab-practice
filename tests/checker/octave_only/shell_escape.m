@@ -1,0 +1,2 @@
+% expect: unsafe
+!ls -la

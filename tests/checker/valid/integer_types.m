@@ -1,0 +1,9 @@
+a = int32(7);
+b = uint8(250) + uint8(10);
+c = idivide(int32(7), int32(2));
+d = double(a) / 2;
+e1 = intmax('int16');
+f = realmax;
+g = eps(1);
+h = Inf - inf;
+k = NaN + nan;

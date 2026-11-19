@@ -1,0 +1,10 @@
+a = '# not a comment';
+b = 'x != y';
+c = 'x += 1';
+d = '% not a comment either';
+e1 = 'printf("hi")';
+f = 'endif';
+fprintf('100%% done\n');
+fprintf('%5.2f\n', pi);
+disp('!');
+g = ['#', '!='];

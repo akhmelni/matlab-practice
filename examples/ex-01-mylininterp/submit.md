@@ -1,0 +1,2 @@
+- Write your function in `myLinInterp.m` with exactly this header: `function [Y] = myLinInterp(x,y,X)`
+- Use the **Run** button with `scratch.m` to try it on your own inputs.

@@ -1,0 +1,10 @@
+x = linspace(0, 2*pi, 50);
+y = x.^2';
+z = sin(x).*cos(x);
+w = x./(1 + x);
+v = 2.^x;
+A = [2 1; 1 3];
+b = [3; 5];
+sol = A\b;
+sol2 = b'/A;
+n = A.\2;

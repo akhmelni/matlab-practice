@@ -1,0 +1,14 @@
+{
+  "id": "ex-01-mylininterp",
+  "set": "examples",
+  "number": 1,
+  "title": "Linear interpolation",
+  "kind": "function",
+  "file": "myLinInterp.m",
+  "function": {"name": "myLinInterp", "inputs": ["x", "y", "X"], "outputs": ["Y"]},
+  "answers": [],
+  "banned_functions": ["interp1", "interp2", "interpn", "griddedInterpolant", "spline", "pchip", "makima"],
+  "banned_operators": [],
+  "context": [],
+  "timeout_s": 30
+}

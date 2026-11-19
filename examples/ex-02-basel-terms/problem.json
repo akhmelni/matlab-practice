@@ -1,0 +1,13 @@
+{
+  "id": "ex-02-basel-terms",
+  "set": "examples",
+  "number": 2,
+  "title": "How many terms of the Basel sum",
+  "kind": "value",
+  "file": "solution.m",
+  "answers": ["n", "total"],
+  "banned_functions": [],
+  "banned_operators": [],
+  "context": [],
+  "timeout_s": 30
+}

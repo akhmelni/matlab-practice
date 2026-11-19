@@ -1,0 +1,1 @@
+The sum $1 + \frac{1}{4} + \frac{1}{9} + \dots + \frac{1}{n^2}$ gets closer and closer to $\frac{\pi^2}{6}$ as $n$ grows. Write MATLAB code that finds the smallest $n$ for which the sum is within $0.001$ of $\frac{\pi^2}{6}$, and reports $n$ and the value of the sum.

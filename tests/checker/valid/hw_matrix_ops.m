@@ -1,0 +1,14 @@
+A = [4 -2 1; -2 4 -2; 1 -2 4];
+b = [11; -16; 17];
+x1 = inv(A) * b;
+x2 = A \ b;
+x3 = linsolve(A, b);
+d = det(A);
+[V, D] = eig(A);
+n = norm(A * x2 - b);
+I3 = eye(3);
+P = pinv(A);
+r = rank(A);
+tr = trace(A);
+T = triu(A) + tril(A, -1);
+K = kron(I3, [1 2]);
