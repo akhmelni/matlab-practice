@@ -1,7 +1,7 @@
 name: CI
 
 # Windows runs on every push to main (it's what the student uses).
-# macOS runs on demand only: macOS minutes count 10x against a private repo's free allowance.
+# macOS runs on demand only (the student uses Windows; it's tested locally on a Mac).
 on:
   push:
     branches: [main]

@@ -47,8 +47,7 @@ in the repo folder with `OCTAVE=C:\path\to\mingw64\bin\octave-cli.exe`.
 
 ### 4. Get the app
 
-The repo is private: the GitHub account must have access (ask the repo owner to add you as a
-collaborator), and Git asks you to sign in to GitHub in the browser the first time.
+The repo is public, so no GitHub account or sign-in is needed.
 
 | | |
 | --- | --- |
