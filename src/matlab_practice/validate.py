@@ -96,7 +96,7 @@ def validate(folder: Path, reference: Path | None) -> Report:
         rep.fail("problems made from homework need the original image (set \"source\" in problem.json)")
     for cid in p.context:
         if problems.find(cid) is None:
-            rep.fail(f"context problem '{cid}' doesn't exist (or isn't valid)")
+            rep.ok(f"note: context problem '{cid}' doesn't exist yet; it will be linked once it does")
 
     allowed = [p.func_name] if p.func_name else []
     _check_file(rep, folder / "starter.m", "starter.m", profile="student")

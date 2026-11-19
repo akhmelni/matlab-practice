@@ -14,6 +14,8 @@ The folder format is in [problem-format.md](problem-format.md). Read both before
      sheet ("Write MATLAB code for one of the problems below...").
    - If any part is unreadable, cut off, or ambiguous to *read* (not to interpret): **stop and ask the
      student** to send a clearer image or the missing text. Never guess a number or a word.
+     Only that problem waits. Other problems on the sheet go ahead, including ones that refer to it,
+     as long as they can be graded without the missing part (link them with `context` anyway).
 2. **No Octave-only habits.** The student runs Octave but must only ever see MATLAB. Every `.m` file you
    write (starter, scratch, tests, and your reference) must pass the checker (`uv run mcheck FILE.m`).
    Use single-quoted strings, `%` comments, `~=`, `end`, `fprintf`/`disp`.
@@ -40,18 +42,29 @@ The folder format is in [problem-format.md](problem-format.md). Read both before
 - Problems that say "display on the screen" still store the value in a variable so it can be graded;
   printing it as well is fine.
 - Multi-answer questions ("use three built-in operations to find x") → one variable per answer, e.g.
-  `x1`, `x2`, `x3`, plus an `mp_check` that the three were computed differently if the question
-  requires that (judge from the student's code is not possible in tests; the Claude review checks the
-  problem's own rules).
+  `x1`, `x2`, `x3`, each checked with `mp_value`. Tests can't see *how* a value was computed, so don't
+  try to check "three different operations" in `tests.m`: the Claude review checks every submission
+  against the question's own rules.
+- Variable names: a single result goes in `answer`. Several results get short descriptive names
+  (`x1`, `beta`, `iBest`). Don't reuse a symbol the question uses as a loop counter (`i`, `N`, `k`)
+  unless the question itself asks for that variable.
+- "Use the function from the previous problem": put the earlier problem's id in `context`. When the
+  student runs or submits, his own file from that problem (e.g. `cosInterp.m`) is available
+  automatically. Your reference solution must be self-contained: include that function as a local
+  function at the end of the script (MATLAB style; the app makes that work in Octave).
+- Titles and slugs are neutral labels: they must not hint at the method (`hw1-05-square-root`, not
+  `hw1-05-newton-sqrt`).
 
 ## Rules from the question
 
 Turn explicit prohibitions in the question into bans in `problem.json`:
 - "You may not use interp1" → `"banned_functions": ["interp1"]` (add close relatives that would make the
   problem trivial: `interp2`, `interpn`, `griddedInterpolant`, `spline`, `pchip`, `makima`).
-- "Do not use the built-in SQRT function, or similar" → `["sqrt", "nthroot", "realsqrt", "hypot"]`
+- "Do not use the built-in SQRT function, or similar" → `["sqrt", "nthroot", "realsqrt", "hypot", "sqrtm"]`
   and `"banned_operators": ["^0.5", ".^0.5", "^(1/2)", ".^(1/2)", "^.5", ".^.5"]`.
-Do not ban things the question doesn't forbid.
+Do not ban things the question doesn't forbid. Bans catch the obvious spellings; cleverer workarounds
+(`exp(log(n)/2)`, `power(n, 0.5)`) are caught by the Claude review, which judges every submission
+against the question's own words ("or similar").
 
 ## Ambiguous questions
 
@@ -73,6 +86,8 @@ When a reading is clearly wrong, don't accept it.
 - **Random cases second (5-10):** generate them with a throwaway Octave script that uses your reference
   (or a trusted built-in, e.g. `interp1` even if the student may not), and paste the results into
   `tests.m` as literals with `mat2str(v, 15)`. `tests.m` itself must never call `rand`.
+- **Off-by-one alternatives:** accept "n terms" vs "n+1 terms" only when the wording is genuinely
+  ambiguous; every alternative you accept is a mistake the tests can no longer catch.
 - **Tolerances:** default `1e-9` relative. Use looser ones only where the question allows approximations.
 - **Value problems:** `mp_value` cases are hidden automatically. Never put the expected value in
   `submit.md`, the title, or anywhere the student can see.
@@ -90,7 +105,8 @@ For each problem `my-work/problems/<id>/`:
 4. `source.png` (or `.jpg`): a copy of the image the student gave you (crop not required).
 5. `starter.m`: function problems: the header line, a blank line, `end`. Script problems: `% Write your script here.`
 6. `scratch.m` (function problems): a few lines that call the function on the question's example
-   inputs, e.g. `Y = myLinInterp([0;1;2;4], [0;10;0;20], [0.5 3])`. Do not print expected outputs.
+   inputs, e.g. `Y = myLinInterp([0;1;2;4], [0;10;0;20], [0.5 3])`. If the question gives no example,
+   use small made-up inputs that aren't test cases. Do not print expected outputs.
 7. `tests.m`.
 
 ## Proving it

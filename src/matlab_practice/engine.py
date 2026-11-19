@@ -20,7 +20,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import config
+from . import config, octave_compat
 from .errors import matlab_message
 from .problems import Problem
 
@@ -167,7 +167,7 @@ def _matlab_str(path: Path | str) -> str:
 
 
 def _execute(problem: Problem, files: dict[str, str], mode: str, timeout: float, graphics: bool,
-             tests_file: Path | None = None) -> RawRun:
+             tests_file: Path | None = None, extra_files: dict[str, str] | None = None) -> RawRun:
     octave = find_octave()
     if not octave.found:
         raise RuntimeError("Octave wasn't found. Install it (see INSTALL.md) or set OCTAVE in .env.")
@@ -175,6 +175,12 @@ def _execute(problem: Problem, files: dict[str, str], mode: str, timeout: float,
     real = Path(os.path.realpath(workdir))
     figdir = real / "figs"
     figdir.mkdir()
+    # MATLAB puts a script's local functions at the end; Octave can't run that, so move them out.
+    scripts = {"scratch.m"} | ({problem.file} if problem.kind != "function" else set())
+    files, origin = octave_compat.prepare_files(files, scripts)
+    # Functions from linked "previous problems" (the student's own files); local ones win.
+    for name, text in (extra_files or {}).items():
+        files.setdefault(name, text)
     for name, text in files.items():
         (real / name).write_text(text, encoding="utf-8", newline="\n")
     if tests_file is not None:
@@ -193,7 +199,9 @@ def _execute(problem: Problem, files: dict[str, str], mode: str, timeout: float,
     qpa = config.setting("QT_QPA_PLATFORM")
     if qpa:
         env["QT_QPA_PLATFORM"] = qpa
-    elif graphics and sys.platform != "darwin" and (IS_WINDOWS or not os.environ.get("DISPLAY")):
+    elif graphics and sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+        # No screen at all (Linux servers). Qt's offscreen mode can't render plots on macOS or
+        # Windows ("invalid empty image"), so there the normal platform is used, with hidden figures.
         env["QT_QPA_PLATFORM"] = "offscreen"
     eval_cmd = f"addpath('{_matlab_str(config.MATLAB_DIR)}'); mp_run('mp_config.json');"
     args = [exe, "--no-gui", "--norc", "--quiet", "--no-history", "--eval", eval_cmd]
@@ -229,7 +237,22 @@ def _execute(problem: Problem, files: dict[str, str], mode: str, timeout: float,
             except json.JSONDecodeError:
                 pass
     figures = sorted(figdir.glob("*.png"), key=lambda p: int(p.stem) if p.stem.isdigit() else 0)
+    if origin:
+        result, progress = _point_back(result, origin), [_point_back(c, origin) for c in progress]
     return RawRun(result, progress, stdout, _filter_stderr(stderr), timed_out, seconds, figures, real)
+
+
+def _point_back(obj, origin: dict[str, str]):
+    """Errors in a moved-out local function name its generated file: name the student's script instead."""
+    if isinstance(obj, str):
+        for generated, script in origin.items():
+            obj = obj.replace(f"Error in {generated} line", f"Error in {script} line")
+        return obj
+    if isinstance(obj, dict):
+        return {k: _point_back(v, origin) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_point_back(v, origin) for v in obj]
+    return obj
 
 
 _NOISE = re.compile(r"^(FALLBACK \(log once\)|QStandardPaths|qt\.|libpng warning|warning: using the fltk)")
@@ -248,11 +271,12 @@ def _case_out(c: dict) -> dict:
     }
 
 
-def run_tests(problem: Problem, code: str, tests_file: Path | None = None) -> dict:
+def run_tests(problem: Problem, code: str, tests_file: Path | None = None,
+              extra_files: dict[str, str] | None = None) -> dict:
     """Grade `code` with the problem's tests.m. Returns the tests part of a submission."""
     tests_file = tests_file or problem.dir / "tests.m"
     graphics = problem.kind == "plot" or uses_graphics(code)
-    raw = _execute(problem, {problem.file: code}, "test", problem.timeout_s, graphics, tests_file)
+    raw = _execute(problem, {problem.file: code}, "test", problem.timeout_s, graphics, tests_file, extra_files)
     cases = [_case_out(c) for c in (raw.result or {}).get("cases", [])] if raw.result else [
         _case_out(c) for c in raw.progress]
     error = None
@@ -285,13 +309,13 @@ def run_tests(problem: Problem, code: str, tests_file: Path | None = None) -> di
     }
 
 
-def run_code(problem: Problem, code: str, scratch: str | None) -> dict:
+def run_code(problem: Problem, code: str, scratch: str | None, extra_files: dict[str, str] | None = None) -> dict:
     """The Run button: execute scratch.m (function problems) or the solution script."""
     files = {problem.file: code}
     if problem.kind == "function":
         files["scratch.m"] = scratch or ""
     graphics = uses_graphics(code, scratch)
-    raw = _execute(problem, files, "run", RUN_TIMEOUT_S, graphics)
+    raw = _execute(problem, files, "run", RUN_TIMEOUT_S, graphics, None, extra_files)
     error = None
     if raw.timed_out:
         error = f"Stopped after {RUN_TIMEOUT_S} s: your code took too long (maybe an infinite loop)."

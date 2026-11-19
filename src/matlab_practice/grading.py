@@ -4,21 +4,26 @@ from __future__ import annotations
 
 import threading
 from datetime import datetime
+from pathlib import Path
 
 from . import engine, problems, review, store
 from .checker import check
 from .problems import Problem
 
 
+def _context_names(problem: Problem) -> list[str]:
+    return [Path(name).stem for name in problems.context_files(problem)]
+
+
 def _issues(problem: Problem, code: str, scratch: str | None) -> list[dict]:
     found = []
-    for issue in check(code, filename=problem.file, profile="student",
+    for issue in check(code, filename=problem.file, profile="student", extra_allowed=_context_names(problem),
                        banned_functions=problem.banned_functions, banned_operators=problem.banned_operators):
         if issue.severity == "error":
             found.append({**issue.to_dict(), "file": problem.file})
     if problem.kind == "function" and scratch is not None:
         for issue in check(scratch, filename="scratch.m", profile="student",
-                           extra_allowed=[problem.func_name]):
+                           extra_allowed=[problem.func_name, *_context_names(problem)]):
             if issue.severity == "error":
                 found.append({**issue.to_dict(), "file": "scratch.m"})
     return found
@@ -26,10 +31,11 @@ def _issues(problem: Problem, code: str, scratch: str | None) -> list[dict]:
 
 def lint(problem: Problem, code: str, filename: str | None = None) -> list[dict]:
     filename = filename or problem.file
+    ctx = _context_names(problem)
     if filename == "scratch.m":
-        issues = check(code, filename="scratch.m", profile="student", extra_allowed=[problem.func_name])
+        issues = check(code, filename="scratch.m", profile="student", extra_allowed=[problem.func_name, *ctx])
     else:
-        issues = check(code, filename=problem.file, profile="student",
+        issues = check(code, filename=problem.file, profile="student", extra_allowed=ctx,
                        banned_functions=problem.banned_functions, banned_operators=problem.banned_operators)
     return [i.to_dict() for i in issues]
 
@@ -40,7 +46,7 @@ def run(problem: Problem, code: str, scratch: str | None) -> dict:
     if issues:
         return {"blocked": True, "issues": issues, "stdout": "", "stderr": "", "error": None,
                 "figures": [], "timed_out": False, "seconds": 0}
-    raw = engine.run_code(problem, code, scratch)
+    raw = engine.run_code(problem, code, scratch, problems.context_files(problem))
     token = f"run-{problem.id}-{datetime.now().strftime('%H%M%S%f')}"
     figures = store.keep_figures(token, raw["figures_paths"])
     engine.cleanup(raw["workdir"])
@@ -66,7 +72,7 @@ def submit(problem: Problem, code: str, scratch: str | None, background: bool = 
     if issues:
         sub.update(tests_verdict="blocked", issues=issues)
     else:
-        tests = engine.run_tests(problem, code)
+        tests = engine.run_tests(problem, code, extra_files=problems.context_files(problem))
         sub["figures"] = store.keep_figures(f"{problem.id}-{sid}", tests["figures_paths"])
         engine.cleanup(tests["workdir"])
         for k in ("tests_verdict", "cases", "error", "passed", "total", "stdout"):

@@ -47,16 +47,24 @@ jobs:
       - name: Install the app
         run: uv sync
 
-      - name: Unit and integration tests
-        run: uv run pytest -v
+      - name: Plot probe (which Octave program / display mode can save plots)
+        if: always()
+        run: uv run python tools/plot_probe.py
 
       - name: check-setup (as the install guide runs it)
+        if: always()
         run: uv run check-setup --no-claude
 
+      - name: Unit and integration tests
+        if: always()
+        run: uv run pytest -v
+
       - name: Validate every problem
+        if: always()
         run: uv run validate --all
 
       - name: Server smoke test
+        if: always()
         shell: pwsh
         run: |
           $p = Start-Process -FilePath uv -ArgumentList 'run','practice','--no-open' -PassThru -NoNewWindow

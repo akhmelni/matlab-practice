@@ -90,6 +90,17 @@ class Problem:
             (self.student_dir / "scratch.m").write_text(scratch, encoding="utf-8", newline="\n")
 
 
+def context_files(problem: Problem) -> dict[str, str]:
+    """The student's own function files from the problems this one refers to ("the previous problem")."""
+    files: dict[str, str] = {}
+    for cid in problem.context:
+        other = find(cid)
+        if other is None or other.kind != "function" or other.file == problem.file:
+            continue
+        files[other.file] = other.student_code()
+    return files
+
+
 def parse(folder: Path, example: bool = False) -> Problem:
     """Load and check problem.json. Raises ProblemError with a readable reason."""
     meta_path = folder / "problem.json"
