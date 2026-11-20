@@ -17,7 +17,7 @@ A local practice app for learning MATLAB, LeetCode-style, built around your own 
 | | Windows | Mac |
 | --- | --- | --- |
 | Start the app | double-click `start.bat` | `./start.sh` |
-| Add problems | open the folder in Claude Code, attach the homework, type `/new-problem` | same |
+| Add problems | see [Adding problems from your homework](#adding-problems-from-your-homework) | same |
 | Update the tool | `git pull` then `uv sync` | same |
 
 The app opens at http://127.0.0.1:8770.
@@ -25,6 +25,41 @@ The app opens at http://127.0.0.1:8770.
 - **Run** (Ctrl+' / ⌘'): runs your code (`scratch.m` for function problems) and shows the output and plots.
 - **Submit** (Ctrl+Enter / ⌘↵): checks, grades and reviews it, and saves it to your history.
 - Problems you made live in `my-work/` (never touched by updates).
+
+## Adding problems from your homework
+
+You don't write problems yourself: Claude Code turns your homework into practice problems, with the
+questions copied **word for word** and tests that check your answers.
+
+1. **Take a clear screenshot** (or export the PDF page) of the homework. One sheet at a time works best.
+   Make sure nothing is cut off at the edges.
+2. **Open this folder in Claude Code**: in the Claude desktop app, open the **Code** tab and choose the
+   `matlab-practice` folder, or run `claude` in a terminal inside the folder.
+3. **Attach the screenshot** (drag it in, or paste it) and type:
+
+   ```text
+   /new-problem This is hw3. Make all of them.
+   ```
+
+   Say what the sheet is called (`hw3`, `quiz2`...) so the problems are grouped and numbered the same
+   way as your homework. You can also ask for only some: "just problems 2, 5 and 7".
+4. **Answer its questions.** If part of a question is unreadable or cut off, Claude stops and asks you
+   instead of guessing. Send a better screenshot or type the missing part.
+5. **Wait a few minutes.** For every question Claude writes tests, checks them in Octave against its own
+   hidden solution, then deletes that solution. It tells you which problems are ready.
+6. **Open the app** (or reload the page). The new problems appear under the sheet's name.
+7. **Check each question against the original**: click **Show original** above the question. If the
+   text doesn't match the sheet, tell Claude ("hw3 problem 4 has the wrong number in the matrix").
+
+Good to know:
+
+- Claude won't tell you how to solve a problem or what the answer is. Ask it for help on a problem and
+  you get nothing specific until you've failed that problem **5 times** in the app, then hints that
+  get more specific each time.
+- Some problems can't be fully checked automatically (for example "plot this" or "explain what
+  happens"). Claude tells you which ones; for those, look at your plot or output yourself.
+- If a problem seems graded unfairly (you're sure your answer is right), tell Claude which problem
+  and why, and ask it to check the tests.
 
 ## Install
 
